@@ -14,3 +14,5 @@ accelerate
 bitsandbytes
 # Utilities
 # uuid (standard library)
+# Audio Backends
+soundfile

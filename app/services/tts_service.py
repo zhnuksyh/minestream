@@ -56,7 +56,21 @@ class TTSService:
         # Return dummy audio bytes (1 second of silence or noise)
         # In real world, this returns the audio tensor or bytes
         # simulating a simple sine wave for testability if needed, or just bytes
-        dummy_audio = b"RIFF" + b"\x00" * 1000 
-        return dummy_audio
+        # Generate a 1-second sine wave at 440Hz (A4)
+        sample_rate = 24000
+        duration = 1.0
+        t = torch.linspace(0, duration, int(sample_rate * duration))
+        waveform = torch.sin(2 * torch.pi * 440 * t).unsqueeze(0) # (1, samples)
+        
+        # Save to in-memory buffer using soundfile
+        import io
+        import soundfile as sf
+        
+        # Convert to numpy: (1, samples) -> (samples,)
+        audio_np = waveform.squeeze().cpu().numpy()
+        
+        buffer = io.BytesIO()
+        sf.write(buffer, audio_np, sample_rate, format='WAV', subtype='PCM_16')
+        return buffer.getvalue()
 
 tts_service = TTSService()
