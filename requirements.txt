@@ -13,4 +13,4 @@ accelerate
 # Optional for quantization
 bitsandbytes
 # Utilities
-uuid
+# uuid (standard library)
