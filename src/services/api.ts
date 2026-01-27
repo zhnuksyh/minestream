@@ -1,28 +1,66 @@
 import type { GeneratedAudio } from '../types';
 
-const MOCK_AUDIO_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+const API_BASE_URL = "http://localhost:8000/api/v1";
 
 export const api = {
-    generateVoice: async (script: string, _voiceId: string): Promise<GeneratedAudio> => {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+    generateVoice: async (text: string, voiceId?: string): Promise<GeneratedAudio> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/tts/generate`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    text,
+                    voice_id: voiceId,
+                    speed: 1.0,
+                }),
+            });
 
-        return {
-            id: crypto.randomUUID(),
-            url: MOCK_AUDIO_URL,
-            script,
-            timestamp: Date.now(),
-            duration: 15 // Mock duration
-        };
+            if (!response.ok) {
+                throw new Error("Failed to generate audio");
+            }
+
+            const data = await response.json();
+
+            // Adapt backend response to GeneratedAudio interface
+            return {
+                id: crypto.randomUUID(), // Backend doesn't return ID for the generation event itself yet, so we gen one for UI
+                url: `http://localhost:8000${data.audio_url}`, // Backend returns relative path
+                script: data.text_processed,
+                timestamp: Date.now(),
+                duration: 0 // We'll let WaveSurfer calculate the actual duration
+            };
+        } catch (error) {
+            console.error("API Error:", error);
+            throw error;
+        }
     },
 
-    cloneVoice: async (_audioBlob: Blob): Promise<{ success: boolean; id: string }> => {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 3000));
+    cloneVoice: async (audioBlob: Blob, name: string, tag: string): Promise<{ success: boolean; id: string }> => {
+        try {
+            const formData = new FormData();
+            formData.append("audio", audioBlob);
+            formData.append("name", name);
+            formData.append("tag", tag);
 
-        return {
-            success: true,
-            id: crypto.randomUUID()
-        };
+            const response = await fetch(`${API_BASE_URL}/clone/extract`, {
+                method: "POST",
+                body: formData, // fetch automatically sets Content-Type to multipart/form-data
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to upload voice sample");
+            }
+
+            const data = await response.json();
+            return {
+                success: true,
+                id: data.voice.id
+            };
+        } catch (error) {
+            console.error("Clone API Error:", error);
+            throw error;
+        }
     }
 };
