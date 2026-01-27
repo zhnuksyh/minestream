@@ -37,7 +37,8 @@ export const useWaveSurfer = ({ containerRef, url, options }: UseWaveSurferProps
         return () => {
             ws.destroy();
         };
-    }, [containerRef, options]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [containerRef, JSON.stringify(options)]);
 
     useEffect(() => {
         if (wavesurferRef.current && url) {
