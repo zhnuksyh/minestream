@@ -3,7 +3,7 @@ import { Card } from './ui/Card';
 import { useStore } from '../store/useStore';
 
 export const VoiceVault = () => {
-    const { clonedVoices, removeVoice, voiceMode, setVoiceMode, selectedVoiceId, setSelectedVoiceId } = useStore();
+    const { clonedVoices, removeVoice, voiceMode, setVoiceMode, selectedVoiceId, setSelectedVoiceId, customVoicePrompt, setCustomVoicePrompt } = useStore();
 
     return (
         <Card>
@@ -13,7 +13,7 @@ export const VoiceVault = () => {
 
             {/* Voice Source Selection */}
             <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700 mb-4">
-                {(['library', 'upload'] as const).map(v => (
+                {(['library', 'prompt', 'upload'] as const).map(v => (
                     <button
                         key={v}
                         onClick={() => setVoiceMode(v)}
@@ -48,6 +48,18 @@ export const VoiceVault = () => {
                             No cloned voices found in vault.
                         </div>
                     )}
+                </div>
+            )}
+
+            {voiceMode === 'prompt' && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <label className="text-[10px] uppercase font-bold text-slate-500 mb-2 block">Voice Description</label>
+                    <textarea
+                        value={customVoicePrompt}
+                        onChange={(e) => setCustomVoicePrompt(e.target.value)}
+                        placeholder="Describe the voice: 'A rusty, old pirate captain with a deep growl...'"
+                        className="w-full h-32 bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all font-mono resize-none"
+                    />
                 </div>
             )}
 
