@@ -28,7 +28,7 @@ export const api = {
             // Adapt backend response to GeneratedAudio interface
             return {
                 id: crypto.randomUUID(), // Backend doesn't return ID for the generation event itself yet, so we gen one for UI
-                url: `http://localhost:8000${data.audio_url}`, // Backend returns relative path
+                url: `https://${window.location.hostname}:8000${data.audio_url}`, // Dynamic hostname for network access
                 script: data.text_processed,
                 timestamp: Date.now(),
                 duration: 0 // We'll let WaveSurfer calculate the actual duration
