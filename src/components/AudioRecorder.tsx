@@ -70,7 +70,7 @@ export const AudioRecorder = () => {
         stopRecording();
         // Mock API call to clone
         // In real app, we'd collect the chunks and send a blob
-        await api.cloneVoice(new Blob([]));
+        await api.cloneVoice(new Blob([]), "My Custom Voice", "Gaming");
     };
 
     const formatTime = (seconds: number) => {
