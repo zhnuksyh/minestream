@@ -20,6 +20,10 @@ interface AppState {
     addVoice: (voice: VoiceProfile) => void;
     removeVoice: (id: string) => void;
     fetchVoices: () => Promise<void>;
+
+    // Dynamic Voice
+    customVoicePrompt: string;
+    setCustomVoicePrompt: (prompt: string) => void;
 }
 
 import { api } from '../services/api';
@@ -41,6 +45,11 @@ export const useStore = create<AppState>((set) => ({
     setIsProcessing: (isProcessing) => set({ isProcessing }),
     addVoice: (voice) => set((state) => ({ clonedVoices: [...state.clonedVoices, voice] })),
     removeVoice: (id) => set((state) => ({ clonedVoices: state.clonedVoices.filter((v) => v.id !== id) })),
+
+    // Dynamic
+    customVoicePrompt: '',
+    setCustomVoicePrompt: (prompt) => set({ customVoicePrompt: prompt }),
+
     fetchVoices: async () => {
         const voices = await api.getVoices();
         set({ clonedVoices: voices });
