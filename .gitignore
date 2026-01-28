@@ -40,3 +40,6 @@ App.backup.jsx
 *.njsproj
 *.sln
 *.sw?
+
+# SSL Certificates (private keys)
+certs/*.pem

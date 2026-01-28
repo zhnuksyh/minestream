@@ -1,6 +1,7 @@
 import type { GeneratedAudio } from '../types';
 
-const API_BASE_URL = "http://localhost:8000/api/v1";
+// Use current hostname for network access (works from any device)
+const API_BASE_URL = `https://${window.location.hostname}:8000/api/v1`;
 
 export const api = {
     generateVoice: async (text: string, voiceId?: string, voicePrompt?: string): Promise<GeneratedAudio> => {
