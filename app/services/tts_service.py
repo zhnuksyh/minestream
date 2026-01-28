@@ -91,6 +91,39 @@ class TTSService:
             buffer = io.BytesIO()
             sf.write(buffer, audio_np, sample_rate, format='WAV', subtype='PCM_16')
             return buffer.getvalue()  
+    
+    def clone(self, text: str, ref_audio_path: str, ref_text: str = None, speed: float = 1.0):
+        """
+        Synthesizes speech using a reference audio for voice cloning.
+        """
+        if not self._model:
+            raise RuntimeError("Model not initialized. Call initialize_model() first.")
+        
+        logger.info(f"Cloning voice from: {ref_audio_path}")
+        logger.info(f"Text to synthesize: '{text[:30]}...'")
+        
+        try:
+            # Use synthesize method for voice cloning
+            wavs, sr = self._model.synthesize(
+                text=text,
+                ref_audio=ref_audio_path,
+                ref_text=ref_text  # Optional transcript of reference audio
+            )
+            
+            audio_data = wavs[0]
+            
+            import io
+            import soundfile as sf
+            
+            buffer = io.BytesIO()
+            sf.write(buffer, audio_data, sr, format='WAV', subtype='PCM_16')
+            return buffer.getvalue()
+            
+        except Exception as e:
+            logger.error(f"Voice cloning failed: {e}")
+            # Fallback to generate_voice_design if synthesize fails
+            logger.warning("Falling back to voice_design mode")
+            return self.generate(text, instruction="A clear, natural voice.")
         
         
     # Correct implementation of just the LOADING part first to avoid crashing with unknown model logic.

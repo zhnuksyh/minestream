@@ -1,7 +1,85 @@
-import { Save, Trash2, Download, Upload } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Save, Trash2, Download, Upload, Loader2 } from 'lucide-react';
 import { Card } from './ui/Card';
 import { useStore } from '../store/useStore';
+import { api } from '../services/api';
 
+interface UploadPanelProps {
+    onUploadComplete: () => void;
+}
+
+const UploadPanel = ({ onUploadComplete }: UploadPanelProps) => {
+    const [file, setFile] = useState<File | null>(null);
+    const [name, setName] = useState('');
+    const [tag, setTag] = useState('Cloned');
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { fetchVoices } = useStore();
+
+    const handleUpload = async () => {
+        if (!file || !name) return;
+
+        setIsUploading(true);
+        try {
+            await api.cloneVoice(file, name, tag);
+            await fetchVoices(); // Refresh voice list
+            setFile(null);
+            setName('');
+            onUploadComplete();
+        } catch (error) {
+            console.error('Upload failed:', error);
+        }
+        setIsUploading(false);
+    };
+
+    return (
+        <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* File Drop Zone */}
+            <div
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center transition-colors cursor-pointer h-24 ${file ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-700 hover:border-indigo-500'}`}
+            >
+                <Upload size={20} className={file ? 'text-indigo-400 mb-1' : 'text-slate-600 mb-1'} />
+                <span className="text-[10px] font-bold text-slate-400 uppercase text-center">
+                    {file ? file.name : 'Click to select audio file'}
+                </span>
+            </div>
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+
+            {/* Name & Tag Inputs */}
+            <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Voice Name"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <input
+                type="text"
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                placeholder="Tag (e.g., Narrator)"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+
+            {/* Upload Button */}
+            <button
+                onClick={handleUpload}
+                disabled={!file || !name || isUploading}
+                className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg text-sm font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+            >
+                {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                {isUploading ? 'Uploading...' : 'Clone Voice'}
+            </button>
+        </div>
+    );
+};
 export const VoiceVault = () => {
     const { clonedVoices, removeVoice, voiceMode, setVoiceMode, selectedVoiceId, setSelectedVoiceId, customVoicePrompt, setCustomVoicePrompt } = useStore();
 
@@ -66,10 +144,9 @@ export const VoiceVault = () => {
 
 
             {voiceMode === 'upload' && (
-                <div className="border-2 border-dashed border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center hover:border-indigo-500 transition-colors cursor-pointer group h-32">
-                    <Upload size={24} className="text-slate-600 group-hover:text-indigo-400 transition-colors mb-2" />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase text-center">Reference File Required</span>
-                </div>
+                <UploadPanel onUploadComplete={() => {
+                    setVoiceMode('library');
+                }} />
             )}
         </Card>
     );
