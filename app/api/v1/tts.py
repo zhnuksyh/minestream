@@ -27,7 +27,13 @@ async def generate_speech(request: TTSRequest, db: AsyncSession = Depends(get_db
     try:
         # Lookup Voice Instruction if ID provided
         instruction = None
-        if request.voice_id:
+        
+        # Priority 1: Direct Voice Prompt (Dynamic Mode)
+        if request.voice_prompt:
+            instruction = request.voice_prompt
+            
+        # Priority 2: Database Lookup by ID (Library Mode)
+        elif request.voice_id:
             result = await db.execute(select(VoiceProfile).where(VoiceProfile.id == request.voice_id))
             voice_profile = result.scalars().first()
             if voice_profile and voice_profile.prompt:
