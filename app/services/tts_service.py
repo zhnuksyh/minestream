@@ -8,8 +8,8 @@ logger = logging.getLogger("uvicorn")
 
 class TTSService:
     _instance = None
-    _model = None
-    _processor = None
+    _voice_design_model = None  # For text-prompt voice synthesis
+    _clone_model = None          # For reference-audio cloning
     
     def __new__(cls):
         if cls._instance is None:
@@ -18,35 +18,51 @@ class TTSService:
 
     def initialize_model(self):
         """
-        Loads the Qwen3-TTS model into VRAM. 
-        This is called once during app startup.
+        Loads both Qwen3-TTS models into VRAM.
+        - VoiceDesign: for text-prompt based synthesis
+        - Base: for voice cloning from reference audio
         """
-        if self._model is not None:
-             return
-            
-        logger.info(f"Loading Qwen-TTS model from {settings.TTS_MODEL_PATH}...")
-        try:
-            from qwen_tts import Qwen3TTSModel
-            
-            # Load specialized Qwen3 model
-            self._model = Qwen3TTSModel.from_pretrained(
-                settings.TTS_MODEL_PATH,
-                device_map="auto",
-                torch_dtype=torch.float16 if settings.USE_GPU else torch.float32,
-            )
-            
-            device_str = "CUDA" if torch.cuda.is_available() and settings.USE_GPU else "CPU"
-            logger.info(f"Model loaded successfully on {device_str}")
-        except Exception as e:
-            logger.error(f"Failed to load model: {e}")
-            raise e
+        from qwen_tts import Qwen3TTSModel
+        
+        dtype = torch.float16 if settings.USE_GPU else torch.float32
+        device_str = "CUDA" if torch.cuda.is_available() and settings.USE_GPU else "CPU"
+        
+        # Load VoiceDesign model (if not already loaded)
+        if self._voice_design_model is None:
+            logger.info(f"Loading VoiceDesign model from {settings.TTS_MODEL_PATH}...")
+            try:
+                self._voice_design_model = Qwen3TTSModel.from_pretrained(
+                    settings.TTS_MODEL_PATH,
+                    device_map="auto",
+                    torch_dtype=dtype,
+                )
+                logger.info(f"VoiceDesign model loaded on {device_str}")
+            except Exception as e:
+                logger.error(f"Failed to load VoiceDesign model: {e}")
+                raise e
+        
+        # Load Clone (Base) model (if not already loaded)
+        if self._clone_model is None:
+            logger.info(f"Loading Clone model from {settings.TTS_CLONE_MODEL_PATH}...")
+            try:
+                self._clone_model = Qwen3TTSModel.from_pretrained(
+                    settings.TTS_CLONE_MODEL_PATH,
+                    device_map="auto",
+                    torch_dtype=dtype,
+                )
+                logger.info(f"Clone model loaded on {device_str}")
+            except Exception as e:
+                logger.error(f"Failed to load Clone model: {e}")
+                raise e
+        
+        logger.info("Both TTS models initialized successfully!")
 
     def generate(self, text: str, voice_embedding=None, instruction: str = None, speed: float = 1.0):
         """
         Runs inference to generate audio from text.
         """
-        if not self._model:
-            raise RuntimeError("Model not initialized. Call initialize_model() first.")
+        if not self._voice_design_model:
+            raise RuntimeError("VoiceDesign model not initialized. Call initialize_model() first.")
 
         logger.info(f"Generating TTS for: '{text[:20]}...' Speed: {speed}")
         
@@ -58,7 +74,7 @@ class TTSService:
             
             # Using generate_voice_design based on docs for this model variant
             # Returns: wavs, sr
-            wavs, sr = self._model.generate_voice_design(
+            wavs, sr = self._voice_design_model.generate_voice_design(
                 text=text,
                 instruct=instruct_text
             )
@@ -97,20 +113,15 @@ class TTSService:
         Synthesizes speech using a reference audio for voice cloning.
         Note: Requires the Base model (Qwen3-TTS-12Hz-1.7B-Base), not VoiceDesign.
         """
-        if not self._model:
-            raise RuntimeError("Model not initialized. Call initialize_model() first.")
+        if not self._clone_model:
+            raise RuntimeError("Clone model not initialized. Call initialize_model() first.")
         
         logger.info(f"Cloning voice from: {ref_audio_path}")
         logger.info(f"Text to synthesize: '{text[:30]}...'")
         
-        # Check if model supports voice cloning
-        if not hasattr(self._model, 'generate_voice_clone'):
-            logger.warning("Model does not support voice cloning (VoiceDesign model). Falling back to voice_design mode.")
-            return self.generate(text, instruction="A clear, natural voice matching the reference.")
-        
         try:
             # Use generate_voice_clone method with x_vector_only_mode (no transcript needed)
-            wavs, sr = self._model.generate_voice_clone(
+            wavs, sr = self._clone_model.generate_voice_clone(
                 text=text,
                 language="English",  # TODO: detect language
                 ref_audio=ref_audio_path,

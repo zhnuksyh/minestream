@@ -14,8 +14,10 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./minestream.db"
     
     # AI Models
-    # Default to a local path or huggingface id
+    # VoiceDesign model for text-prompt based voice synthesis
     TTS_MODEL_PATH: str = "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign"
+    # Base model for voice cloning from reference audio
+    TTS_CLONE_MODEL_PATH: str = "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
     USE_GPU: bool = True
     QUANTIZATION: str = "fp16" # options: fp16, int8, or none
 
