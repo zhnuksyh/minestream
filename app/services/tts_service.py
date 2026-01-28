@@ -95,6 +95,7 @@ class TTSService:
     def clone(self, text: str, ref_audio_path: str, ref_text: str = None, speed: float = 1.0):
         """
         Synthesizes speech using a reference audio for voice cloning.
+        Note: Requires the Base model (Qwen3-TTS-12Hz-1.7B-Base), not VoiceDesign.
         """
         if not self._model:
             raise RuntimeError("Model not initialized. Call initialize_model() first.")
@@ -102,12 +103,19 @@ class TTSService:
         logger.info(f"Cloning voice from: {ref_audio_path}")
         logger.info(f"Text to synthesize: '{text[:30]}...'")
         
+        # Check if model supports voice cloning
+        if not hasattr(self._model, 'generate_voice_clone'):
+            logger.warning("Model does not support voice cloning (VoiceDesign model). Falling back to voice_design mode.")
+            return self.generate(text, instruction="A clear, natural voice matching the reference.")
+        
         try:
-            # Use synthesize method for voice cloning
-            wavs, sr = self._model.synthesize(
+            # Use generate_voice_clone method with x_vector_only_mode (no transcript needed)
+            wavs, sr = self._model.generate_voice_clone(
                 text=text,
+                language="English",  # TODO: detect language
                 ref_audio=ref_audio_path,
-                ref_text=ref_text  # Optional transcript of reference audio
+                ref_text=ref_text,  # Optional transcript
+                x_vector_only_mode=(ref_text is None),  # Use embedding only if no transcript
             )
             
             audio_data = wavs[0]
@@ -121,7 +129,7 @@ class TTSService:
             
         except Exception as e:
             logger.error(f"Voice cloning failed: {e}")
-            # Fallback to generate_voice_design if synthesize fails
+            # Fallback to generate_voice_design if cloning fails
             logger.warning("Falling back to voice_design mode")
             return self.generate(text, instruction="A clear, natural voice.")
         
