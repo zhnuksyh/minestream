@@ -16,3 +16,4 @@ bitsandbytes
 # uuid (standard library)
 # Audio Backends
 soundfile
+qwen-tts

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     
     # AI Models
     # Default to a local path or huggingface id
-    TTS_MODEL_PATH: str = "Qwen/Qwen2-Audio-7B-Instruct"  # Placeholder for Qwen3-TTS when available
+    TTS_MODEL_PATH: str = "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign"
     USE_GPU: bool = True
     QUANTIZATION: str = "fp16" # options: fp16, int8, or none
 
