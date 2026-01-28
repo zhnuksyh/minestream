@@ -1,64 +1,89 @@
-# MineStream: Universal AI Gaming Narrator
+# MineStream: AI Voice Synthesis Terminal
 
-MineStream is a modular, high-fidelity AI commentary tool for game creators. It uses local Neural Synthesis (Qwen3-TTS) to generate dynamic, context-aware narration for Minecraft, FPS, RPGs, and more.
+MineStream is a local-first AI voice generation tool powered by **Qwen3-TTS**. It enables high-fidelity text-to-speech with customizable voice personas—either from a preset library or via dynamic text descriptions.
 
-## Architecture
+## Current Status
 
-This project has been refactored from a single-file prototype into a scalable Vite + React + TypeScript architecture.
-
-### Directory Structure
-
-```
-src/
-├── components/         # React components
-│   ├── ui/             # Reusable UI primitives (Button, Card, etc.)
-│   ├── GameSelector    # Context switcher for game tone
-│   ├── ScriptEditor    # Main TTS input interface
-│   ├── VoiceVault      # Library of cloned voices
-│   └── AudioRecorder   # Voice capture with visualizer
-├── hooks/              # Custom React hooks
-│   ├── useMicrophone   # Web Audio API abstraction
-│   └── useWaveSurfer   # Waveform visualization wrapper
-├── services/           # API abstraction layer (currently mock)
-├── store/              # Zustand state management
-└── types.ts            # Shared TypeScript interfaces
-```
-
-## Setup & Development
-
-1.  **Install Dependencies:**
-    ```bash
-    npm install
-    ```
-
-2.  **Start Development Server:**
-    ```bash
-    npm run dev
-    ```
-
-3.  **Build for Production:**
-    ```bash
-    npm run build
-    ```
+| Component | Status |
+|-----------|--------|
+| Frontend (Vite + React + TS) | ✅ Working |
+| Backend (FastAPI + SQLite) | ✅ Working |
+| AI Engine (Qwen3-TTS 1.7B) | ✅ Integrated |
+| Voice Presets (Library Mode) | ✅ Working |
+| Dynamic Voice Prompts | ✅ Working |
+| Voice Cloning (Upload) | 🚧 UI Only |
 
 ## Features
 
--   **Game Context Awareness:** Switch between "Minecraft", "FPS", "RPG" modes to adjust AI tone.
--   **Neural Voice Cloning:** Capture 10s audio samples to clone voices locally.
--   **Waveform Visualization:** Real-time microphone input and TTS output visualization using `wavesurfer.js`.
--   **Voice Vault:** persistent library of voice profiles (mocked state).
+- **Text-to-Speech**: Type any text and generate audio using Qwen3-TTS.
+- **Voice Library**: Select from preset voice personas (Epic Narrator, Cyber System, Whispering Shadow).
+- **Dynamic Prompting**: Describe any voice in natural language (e.g., *"A tired old wizard mumbling spells"*).
+- **Waveform Playback**: Visual audio player with download support.
 
 ## Tech Stack
 
--   **Frontend:** React, Vite, TypeScript
--   **Styling:** Tailwind CSS (Premium "Dark Gaming Dashboard" aesthetic)
--   **State:** Zustand
--   **Audio:** Web Audio API, Wavesurfer.js
--   **Icons:** Lucide React
+| Layer | Technology |
+|-------|------------|
+| Frontend | React, Vite, TypeScript, Tailwind CSS |
+| State | Zustand |
+| Audio | Web Audio API, WaveSurfer.js |
+| Backend | FastAPI, SQLAlchemy, SQLite |
+| AI Model | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` via `qwen-tts` |
 
-## Backend Integration
+## Quick Start
 
-The frontend connects to a service layer in `src/services/api.ts`. Currently, this is mocked. To integrate with the FastAPI Python backend:
+### 1. Backend
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
 
-1.  Update `src/services/api.ts` to `fetch` from your local Python server (e.g., `http://localhost:8000`).
-2.  Ensure `POST /generate` and `POST /clone` endpoints match the types in `src/types.ts`.
+# Start the API server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# (Optional) Seed default voices
+python scripts/seed_voices.py
+```
+
+### 2. Frontend
+```bash
+# Install JS dependencies
+npm install
+
+# Start dev server
+npm run dev
+```
+
+### 3. Open App
+Navigate to `http://localhost:5173`
+
+## Project Structure
+
+```
+minestream/
+├── app/                    # FastAPI Backend
+│   ├── api/v1/             # REST endpoints (tts, cloning)
+│   ├── core/               # Config, database setup
+│   ├── models/             # SQLAlchemy models
+│   └── services/           # TTS inference logic
+├── src/                    # React Frontend
+│   ├── components/         # UI components
+│   ├── services/           # API client
+│   └── store/              # Zustand state
+├── scripts/                # Utility scripts
+│   └── seed_voices.py      # Populate default voices
+└── vault/                  # Audio storage (uploads/outputs)
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/tts/generate` | Generate audio from text |
+| GET | `/api/v1/clone/list` | List all voice profiles |
+| POST | `/api/v1/clone/extract` | Upload audio for cloning (WIP) |
+| GET | `/audio/download/{filename}` | Serve generated audio files |
+| GET | `/health` | Health check |
+
+## License
+
+MIT

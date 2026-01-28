@@ -10,18 +10,25 @@ import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 
 function App() {
-  const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing, fetchVoices, selectedVoiceId } = useStore();
+  const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing, fetchVoices, selectedVoiceId, voiceMode, customVoicePrompt } = useStore();
 
   useEffect(() => {
     fetchVoices();
   }, [fetchVoices]);
 
   const handleGenerate = async () => {
-    if (!selectedVoiceId && !script) return;
+    // Validation based on mode
+    if (!script) return;
+    if (voiceMode === 'library' && !selectedVoiceId) return;
+    if (voiceMode === 'prompt' && !customVoicePrompt) return;
+
     setIsProcessing(true);
     try {
-      // Use selectedVoiceId or undefined if null
-      const result = await api.generateVoice(script, selectedVoiceId || undefined);
+      // Determine what to send based on mode
+      const idToSend = voiceMode === 'library' ? selectedVoiceId || undefined : undefined;
+      const promptToSend = voiceMode === 'prompt' ? customVoicePrompt : undefined;
+
+      const result = await api.generateVoice(script, idToSend, promptToSend);
       setGeneratedAudio(result);
     } catch (error) {
       console.error(error);

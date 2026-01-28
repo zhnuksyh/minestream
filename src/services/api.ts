@@ -3,7 +3,7 @@ import type { GeneratedAudio } from '../types';
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
 export const api = {
-    generateVoice: async (text: string, voiceId?: string): Promise<GeneratedAudio> => {
+    generateVoice: async (text: string, voiceId?: string, voicePrompt?: string): Promise<GeneratedAudio> => {
         try {
             const response = await fetch(`${API_BASE_URL}/tts/generate`, {
                 method: "POST",
@@ -13,6 +13,7 @@ export const api = {
                 body: JSON.stringify({
                     text,
                     voice_id: voiceId,
+                    voice_prompt: voicePrompt,
                     speed: 1.0,
                 }),
             });
