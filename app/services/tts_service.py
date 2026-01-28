@@ -41,7 +41,7 @@ class TTSService:
             logger.error(f"Failed to load model: {e}")
             raise e
 
-    def generate(self, text: str, voice_embedding=None, speed: float = 1.0):
+    def generate(self, text: str, voice_embedding=None, instruction: str = None, speed: float = 1.0):
         """
         Runs inference to generate audio from text.
         """
@@ -51,10 +51,10 @@ class TTSService:
         logger.info(f"Generating TTS for: '{text[:20]}...' Speed: {speed}")
         
         try:
-            # For VoiceDesign model, we need an 'instruct'.
-            # If voice_embedding (cloning) is implemented later, we might use that here.
-            # For now, use a default high-quality prompt.
-            instruct_text = "A clear, professional voice suitable for gaming context."
+            # Use provided instruction or fallback
+            instruct_text = instruction or "A clear, professional voice suitable for gaming context."
+            
+            logger.info(f"Using Voice Design Prompt: '{instruct_text}'")
             
             # Using generate_voice_design based on docs for this model variant
             # Returns: wavs, sr

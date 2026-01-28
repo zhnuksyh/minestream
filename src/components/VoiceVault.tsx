@@ -3,7 +3,7 @@ import { Card } from './ui/Card';
 import { useStore } from '../store/useStore';
 
 export const VoiceVault = () => {
-    const { clonedVoices, removeVoice, voiceMode, setVoiceMode } = useStore();
+    const { clonedVoices, removeVoice, voiceMode, setVoiceMode, selectedVoiceId, setSelectedVoiceId } = useStore();
 
     return (
         <Card>
@@ -13,7 +13,7 @@ export const VoiceVault = () => {
 
             {/* Voice Source Selection */}
             <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700 mb-4">
-                {(['prompt', 'library', 'upload'] as const).map(v => (
+                {(['library', 'upload'] as const).map(v => (
                     <button
                         key={v}
                         onClick={() => setVoiceMode(v)}
@@ -26,9 +26,13 @@ export const VoiceVault = () => {
 
             {/* Mode Content */}
             {voiceMode === 'library' && (
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                     {clonedVoices.map((voice) => (
-                        <div key={voice.id} className="group bg-slate-800/50 border border-slate-700/50 p-3 rounded-xl flex justify-between items-center hover:bg-slate-800 transition-all cursor-pointer">
+                        <div
+                            key={voice.id}
+                            onClick={() => setSelectedVoiceId(voice.id)}
+                            className={`group border p-3 rounded-xl flex justify-between items-center transition-all cursor-pointer ${selectedVoiceId === voice.id ? 'bg-indigo-600/20 border-indigo-500 ring-2 ring-indigo-500/20' : 'bg-slate-800/50 border-slate-700/50 hover:bg-slate-800'}`}
+                        >
                             <div>
                                 <p className="text-sm font-bold text-slate-200">{voice.name}</p>
                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{voice.tag}</p>
@@ -47,13 +51,7 @@ export const VoiceVault = () => {
                 </div>
             )}
 
-            {voiceMode === 'prompt' && (
-                <input
-                    type="text"
-                    placeholder="e.g. Energetic youth, gaming tone"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
-                />
-            )}
+
 
             {voiceMode === 'upload' && (
                 <div className="border-2 border-dashed border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center hover:border-indigo-500 transition-colors cursor-pointer group h-32">

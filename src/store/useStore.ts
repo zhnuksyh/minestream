@@ -6,6 +6,7 @@ interface AppState {
     script: string;
     voiceMode: VoiceMode;
     clonedVoices: VoiceProfile[];
+    selectedVoiceId: string | null;
     generatedAudio: GeneratedAudio | null;
     isProcessing: boolean;
 
@@ -13,28 +14,37 @@ interface AppState {
     setMode: (mode: AppMode) => void;
     setScript: (script: string) => void;
     setVoiceMode: (mode: VoiceMode) => void;
+    setSelectedVoiceId: (id: string) => void;
     setGeneratedAudio: (audio: GeneratedAudio | null) => void;
     setIsProcessing: (isProcessing: boolean) => void;
     addVoice: (voice: VoiceProfile) => void;
     removeVoice: (id: string) => void;
+    fetchVoices: () => Promise<void>;
 }
+
+import { api } from '../services/api';
 
 export const useStore = create<AppState>((set) => ({
     mode: 'GENERATE',
     script: '',
-    voiceMode: 'prompt',
-    clonedVoices: [
-        { id: '1', name: "Zahin_Main", tag: "Natural" },
-        { id: '2', name: "Zahin_Excited", tag: "Gaming" }
-    ],
+    voiceMode: 'library',
+    clonedVoices: [], // Empty initially
+    selectedVoiceId: null, // Track selected voice
     generatedAudio: null,
     isProcessing: false,
 
     setMode: (mode) => set({ mode }),
     setScript: (script) => set({ script }),
     setVoiceMode: (voiceMode) => set({ voiceMode }),
+    setSelectedVoiceId: (id) => set({ selectedVoiceId: id }),
     setGeneratedAudio: (generatedAudio) => set({ generatedAudio }),
     setIsProcessing: (isProcessing) => set({ isProcessing }),
     addVoice: (voice) => set((state) => ({ clonedVoices: [...state.clonedVoices, voice] })),
     removeVoice: (id) => set((state) => ({ clonedVoices: state.clonedVoices.filter((v) => v.id !== id) })),
+    fetchVoices: async () => {
+        const voices = await api.getVoices();
+        set({ clonedVoices: voices });
+        // Select first voice by default if available
+        if (voices.length > 0) set({ selectedVoiceId: voices[0].id });
+    }
 }));

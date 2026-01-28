@@ -62,5 +62,17 @@ export const api = {
             console.error("Clone API Error:", error);
             throw error;
         }
+    },
+
+    getVoices: async (): Promise<any[]> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/clone/list`);
+            if (!response.ok) throw new Error("Failed to fetch voices");
+            const data = await response.json();
+            return data.voices;
+        } catch (error) {
+            console.error("Fetch Voices Error:", error);
+            return [];
+        }
     }
 };

@@ -50,3 +50,13 @@ async def extract_voice(
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+from sqlalchemy.future import select
+@router.get("/list")
+async def list_voices(db: AsyncSession = Depends(get_db)):
+    """
+    Returns a list of all available voice profiles.
+    """
+    result = await db.execute(select(VoiceProfile))
+    voices = result.scalars().all()
+    return {"voices": [v.to_dict() for v in voices]}

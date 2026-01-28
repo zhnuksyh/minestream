@@ -14,16 +14,30 @@ class TTSRequest(BaseModel):
     voice_prompt: Optional[str] = None
     speed: float = 1.0
 
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from app.core.database import get_db
+from app.models.voice import VoiceProfile
+
 @router.post("/generate")
-async def generate_speech(request: TTSRequest):
+async def generate_speech(request: TTSRequest, db: AsyncSession = Depends(get_db)):
     """
     Generate speech from text using Qwen3-TTS.
     """
     try:
+        # Lookup Voice Instruction if ID provided
+        instruction = None
+        if request.voice_id:
+            result = await db.execute(select(VoiceProfile).where(VoiceProfile.id == request.voice_id))
+            voice_profile = result.scalars().first()
+            if voice_profile and voice_profile.prompt:
+                instruction = voice_profile.prompt
+        
         # 1. Generate Audio
         audio_data = tts_service.generate(
             text=request.text, 
-            voice_embedding=request.voice_id, # Simplified passing ID as embedding lookup key
+            voice_embedding=request.voice_id, 
+            instruction=instruction,
             speed=request.speed
         )
         

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Zap, CheckCircle, Music, Mic, Play, Download, AlertCircle } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { api } from './services/api';
@@ -9,12 +10,18 @@ import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 
 function App() {
-  const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing } = useStore();
+  const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing, fetchVoices, selectedVoiceId } = useStore();
+
+  useEffect(() => {
+    fetchVoices();
+  }, [fetchVoices]);
 
   const handleGenerate = async () => {
+    if (!selectedVoiceId && !script) return;
     setIsProcessing(true);
     try {
-      const result = await api.generateVoice(script, "default-voice");
+      // Use selectedVoiceId or undefined if null
+      const result = await api.generateVoice(script, selectedVoiceId || undefined);
       setGeneratedAudio(result);
     } catch (error) {
       console.error(error);
