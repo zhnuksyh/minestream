@@ -24,6 +24,11 @@ interface AppState {
     // Dynamic Voice
     customVoicePrompt: string;
     setCustomVoicePrompt: (prompt: string) => void;
+
+    // Toast Notification
+    toast: { message: string; type: 'success' | 'error' | 'info' } | null;
+    showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+    hideToast: () => void;
 }
 
 import { api } from '../services/api';
@@ -49,6 +54,11 @@ export const useStore = create<AppState>((set) => ({
     // Dynamic
     customVoicePrompt: '',
     setCustomVoicePrompt: (prompt) => set({ customVoicePrompt: prompt }),
+
+    // Toast
+    toast: null,
+    showToast: (message, type = 'info') => set({ toast: { message, type } }),
+    hideToast: () => set({ toast: null }),
 
     fetchVoices: async () => {
         const voices = await api.getVoices();

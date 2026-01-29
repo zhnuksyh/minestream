@@ -15,7 +15,7 @@ const HARVARD_SENTENCES = [
 
 export const AudioRecorder = () => {
     const { isRecording, startRecording, stopRecording, getFrequencyData } = useMicrophone();
-    const { fetchVoices } = useStore();
+    const { fetchVoices, showToast } = useStore();
     const [recordTime, setRecordTime] = useState(0);
     const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
     const [voiceName, setVoiceName] = useState('');
@@ -91,8 +91,10 @@ export const AudioRecorder = () => {
             setUploadSuccess(true);
             setRecordedBlob(null);
             setVoiceName('');
+            showToast('Voice cloned successfully!', 'success');
         } catch (error) {
             console.error('Clone failed:', error);
+            showToast('Failed to clone voice.', 'error');
         }
         setIsUploading(false);
     };

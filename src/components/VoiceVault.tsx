@@ -14,7 +14,7 @@ const UploadPanel = ({ onUploadComplete }: UploadPanelProps) => {
     const [tag, setTag] = useState('Cloned');
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { fetchVoices } = useStore();
+    const { fetchVoices, showToast } = useStore();
 
     const handleUpload = async () => {
         if (!file || !name) return;
@@ -26,8 +26,10 @@ const UploadPanel = ({ onUploadComplete }: UploadPanelProps) => {
             setFile(null);
             setName('');
             onUploadComplete();
+            showToast('Voice successfully cloned and added to vault!', 'success');
         } catch (error) {
             console.error('Upload failed:', error);
+            showToast('Failed to upload voice. Please try again.', 'error');
         }
         setIsUploading(false);
     };
@@ -111,13 +113,25 @@ export const VoiceVault = () => {
                             onClick={() => setSelectedVoiceId(voice.id)}
                             className={`group border p-3 rounded-xl flex justify-between items-center transition-all cursor-pointer ${selectedVoiceId === voice.id ? 'bg-indigo-600/20 border-indigo-500 ring-2 ring-indigo-500/20' : 'bg-slate-800/50 border-slate-700/50 hover:bg-slate-800'}`}
                         >
-                            <div>
-                                <p className="text-sm font-bold text-slate-200">{voice.name}</p>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{voice.tag}</p>
+                            <div className="flex items-center gap-3">
+                                {/* Deterministic Avatar */}
+                                <div
+                                    className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shadow-inner"
+                                    style={{
+                                        backgroundColor: `hsl(${voice.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 360}, 70%, 30%)`,
+                                        color: 'white'
+                                    }}
+                                >
+                                    {voice.name.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-slate-200">{voice.name}</p>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{voice.tag}</p>
+                                </div>
                             </div>
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => removeVoice(voice.id)} className="p-1.5 hover:text-red-400 text-slate-500 transition-colors"><Trash2 size={14} /></button>
-                                <button className="p-1.5 hover:text-indigo-400 text-slate-500 transition-colors"><Download size={14} /></button>
+                                <button onClick={(e) => { e.stopPropagation(); removeVoice(voice.id); }} className="p-1.5 hover:bg-red-500/10 hover:text-red-400 text-slate-500 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                                <button className="p-1.5 hover:bg-indigo-500/10 hover:text-indigo-400 text-slate-500 rounded-lg transition-colors"><Download size={16} /></button>
                             </div>
                         </div>
                     ))}

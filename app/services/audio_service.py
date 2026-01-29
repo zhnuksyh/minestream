@@ -5,8 +5,21 @@ import torch
 class AudioService:
     @staticmethod
     def save_upload(file_data: bytes, dest_path: str):
-        with open(dest_path, "wb") as buffer:
-            buffer.write(file_data)
+        try:
+            from pydub import AudioSegment
+            import io
+            
+            # Load from bytes (handles WebM, MP3, etc. automatically via ffmpeg)
+            audio = AudioSegment.from_file(io.BytesIO(file_data))
+            
+            # Export as 16-bit PCM WAV
+            audio.export(dest_path, format="wav", parameters=["-ac", "1", "-ar", "24000"]) # Force mono, 24kHz (ideal for Qwen)
+            
+        except Exception as e:
+            # Fallback to direct write if conversion fails or pydub missing
+            print(f"Audio conversion failed: {e}. Saving raw bytes.")
+            with open(dest_path, "wb") as buffer:
+                buffer.write(file_data)
         return dest_path
 
     @staticmethod

@@ -8,9 +8,10 @@ import { AudioRecorder } from './components/AudioRecorder';
 import { WaveformDisplay } from './components/WaveformDisplay';
 import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
+import { Toast } from './components/ui/Toast';
 
 function App() {
-  const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing, fetchVoices, selectedVoiceId, voiceMode, customVoicePrompt } = useStore();
+  const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing, fetchVoices, selectedVoiceId, voiceMode, customVoicePrompt, toast, hideToast } = useStore();
 
   useEffect(() => {
     fetchVoices();
@@ -38,7 +39,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500/30">
-      {/* Header */}
       <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -59,6 +59,8 @@ function App() {
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-12">
+
+
         {/* Mode Toggle */}
         <div className="flex bg-slate-800 p-1 rounded-xl mb-8 w-fit mx-auto border border-slate-700 shadow-lg">
           <button
@@ -157,6 +159,15 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Global Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      )}
     </div>
   );
 }

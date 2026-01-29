@@ -17,3 +17,5 @@ bitsandbytes
 # Audio Backends
 soundfile
 qwen-tts
+flash-attn
+pydub
