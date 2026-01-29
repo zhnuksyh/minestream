@@ -1,89 +1,84 @@
 # MineStream: AI Voice Synthesis Terminal
 
-MineStream is a local-first AI voice generation tool powered by **Qwen3-TTS**. It enables high-fidelity text-to-speech with customizable voice personas—either from a preset library or via dynamic text descriptions.
+MineStream is a local-first AI voice generation tool powered by **Qwen3-TTS** (Dual-Model Architecture). It enables high-fidelity text-to-speech with customizable voice personas, dynamic text prompts, and zero-shot voice cloning.
 
-## Current Status
+## 🚀 Current Status
 
-| Component | Status |
-|-----------|--------|
-| Frontend (Vite + React + TS) | ✅ Working |
-| Backend (FastAPI + SQLite) | ✅ Working |
-| AI Engine (Qwen3-TTS 1.7B) | ✅ Integrated |
-| Voice Presets (Library Mode) | ✅ Working |
-| Dynamic Voice Prompts | ✅ Working |
-| Voice Cloning (Upload) | 🚧 UI Only |
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Frontend (Vite + React + TS) | ✅ Working | Includes Toasts, Avatars, Visualizers |
+| Backend (FastAPI + SQLite) | ✅ Working | HTTPS enabled for mobile support |
+| **Voice Cloning** | ✅ **Active** | Powered by `Qwen3-Base` (Zero-Shot) |
+| Voice Design (Prompts) | ✅ Active | Powered by `Qwen3-VoiceDesign` |
+| Audio Pipeline | ✅ Optimized | Auto-converts WebM/MP3 to 24kHz WAV |
 
-## Features
+## ✨ Features
 
-- **Text-to-Speech**: Type any text and generate audio using Qwen3-TTS.
-- **Voice Library**: Select from preset voice personas (Epic Narrator, Cyber System, Whispering Shadow).
-- **Dynamic Prompting**: Describe any voice in natural language (e.g., *"A tired old wizard mumbling spells"*).
-- **Waveform Playback**: Visual audio player with download support.
+- **Hybrid Voice Engine**:
+    - **Library Mode**: Use preset voices or cloned voices.
+    - **Prompt Mode**: Describe a voice ("A rusty old pirate") to generate it on the fly.
+    - **Cloning Mode**: Upload *any* audio sample (3-10s) to clone a voice instantly.
+- **Secure & Mobile Ready**: Runs on HTTPS to support microphone access on external devices.
+- **Robust Audio Handling**: Backend automatically normalizes upload formats using `ffmpeg`.
 
-## Tech Stack
+## 📚 Documentation
+- [**The Journey**](docs/JOURNEY.md) - Challenges encountered & Rebuild Guide.
+- [**Hardware Guide**](docs/HARDWARE.md) - Running on AMD/Mac/CPU.
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | React, Vite, TypeScript, Tailwind CSS |
-| State | Zustand |
-| Audio | Web Audio API, WaveSurfer.js |
-| Backend | FastAPI, SQLAlchemy, SQLite |
-| AI Model | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` via `qwen-tts` |
+| **Frontend** | React, Vite, TypeScript, Tailwind CSS, Lucide |
+| **Backend** | FastAPI, SQLAlchemy, SQLite, Pydantic |
+| **AI Models** | `Qwen3-VoiceDesign` (Prompts) + `Qwen3-Base` (Cloning) |
+| **Audio** | `ffmpeg` (pydub), `torchaudio`, Web Audio API |
 
-## Quick Start
+## ⚡ Quick Start
 
-### 1. Backend
+### 1. Prerequisites
+- **NVIDIA GPU** (Recommended: 12GB+ VRAM). *See Hardware Guide for others.*
+- **System Tools**: `ffmpeg` (Required for audio conversion).
+
+### 2. Backend Setup
 ```bash
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Start the API server
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-# (Optional) Seed default voices
-python scripts/seed_voices.py
+# Start the Secure API Server (Auto-generates SSL)
+./scripts/start-https.sh
+# Server runs on https://0.0.0.0:8000
 ```
 
-### 2. Frontend
+### 3. Frontend Setup
 ```bash
 # Install JS dependencies
 npm install
 
-# Start dev server
+# Start Dev Server
 npm run dev
+# App runs on https://localhost:5173
 ```
 
-### 3. Open App
-Navigate to `http://localhost:5173`
-
-## Project Structure
+## 📂 Project Structure
 
 ```
 minestream/
 ├── app/                    # FastAPI Backend
-│   ├── api/v1/             # REST endpoints (tts, cloning)
-│   ├── core/               # Config, database setup
-│   ├── models/             # SQLAlchemy models
-│   └── services/           # TTS inference logic
+│   ├── api/v1/             # Endpoints (tts, cloning w/ auto-convert)
+│   ├── services/           # Dual-Model Loader & Audio Processing
 ├── src/                    # React Frontend
-│   ├── components/         # UI components
-│   ├── services/           # API client
-│   └── store/              # Zustand state
-├── scripts/                # Utility scripts
-│   └── seed_voices.py      # Populate default voices
+│   ├── components/         # UI (VoiceVault, AudioRecorder, Toasts)
+│   ├── store/              # Zustand Store
+├── scripts/                # Utility scripts (start-https, seed)
+├── docs/                   # Extended Documentation
 └── vault/                  # Audio storage (uploads/outputs)
 ```
 
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/tts/generate` | Generate audio from text |
-| GET | `/api/v1/clone/list` | List all voice profiles |
-| POST | `/api/v1/clone/extract` | Upload audio for cloning (WIP) |
-| GET | `/audio/download/{filename}` | Serve generated audio files |
-| GET | `/health` | Health check |
+## ⚠️ Important Notes
+- **First Run**: The backend will download ~7GB of models (VoiceDesign + Base). Ensure you have disk space.
+- **Microphone**: You must access the app via **HTTPS** (or localhost) for the mic to work.
+- **Performance**: Install `flash-attn` for 2x faster inference (Optional).
 
 ## License
-
 MIT
