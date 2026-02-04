@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Save, Trash2, Download, Upload, Loader2, Lock } from 'lucide-react';
+import { Trash2, Download, Upload, Loader2, Lock } from 'lucide-react';
 import { Card } from './ui/Card';
 import { useStore } from '../store/useStore';
 import { api } from '../services/api';
@@ -88,10 +88,6 @@ export const VoiceVault = () => {
 
     return (
         <Card>
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Save className="text-indigo-400" size={20} /> Vault
-            </h2>
-
             {/* Voice Source Selection */}
             <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700 mb-4">
                 {(['library', 'prompt', 'upload'] as const).map(v => (
