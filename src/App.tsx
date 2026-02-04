@@ -9,6 +9,7 @@ import { WaveformDisplay } from './components/WaveformDisplay';
 import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 import { Toast } from './components/ui/Toast';
+import { Loading } from './components/ui/Loading';
 
 function App() {
   const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing, fetchVoices, selectedVoiceId, voiceMode, customVoicePrompt, toast, hideToast } = useStore();
@@ -49,12 +50,6 @@ function App() {
               Mine<span className="text-indigo-400">Stream</span>
             </h1>
           </div>
-          <div className="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-            <span className="hidden sm:inline">User: Zahin</span>
-            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 shadow-lg">
-              Z
-            </div>
-          </div>
         </div>
       </header>
 
@@ -94,14 +89,22 @@ function App() {
                 <div className="space-y-3">
                   <Button
                     onClick={handleGenerate}
-                    isLoading={isProcessing}
-                    className="w-full"
-                    variant="secondary"
+                    disabled={isProcessing}
+                    className="w-full h-12 text-sm uppercase tracking-widest font-bold bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 border border-indigo-400/20 active:scale-[0.98] transition-all"
                   >
-                    <Play size={18} fill="currentColor" className="mr-2" /> Preview Audio
+                    {isProcessing ? (
+                      <div className="flex items-center gap-3">
+                        <Loading />
+                        <span className="text-xs">Processing Neural Audio...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <Play size={18} fill="currentColor" /> Preview Audio
+                      </div>
+                    )}
                   </Button>
                   <Button
-                    className="w-full shadow-lg shadow-indigo-500/30"
+                    className="w-full h-12 bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 shadow-lg active:scale-[0.98] transition-all font-bold uppercase tracking-widest text-xs"
                   >
                     <Download size={18} className="mr-2" /> Export Full .WAV
                   </Button>
@@ -161,14 +164,16 @@ function App() {
       </footer>
 
       {/* Global Toast */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={hideToast}
-        />
-      )}
-    </div>
+      {
+        toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={hideToast}
+          />
+        )
+      }
+    </div >
   );
 }
 

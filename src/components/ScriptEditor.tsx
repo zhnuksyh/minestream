@@ -9,9 +9,7 @@ interface ScriptEditorProps {
 export const ScriptEditor = ({ script, setScript }: ScriptEditorProps) => {
     return (
         <Card className="relative group">
-            <div className="absolute top-4 right-6 text-[10px] font-bold text-slate-700 uppercase tracking-widest group-hover:text-indigo-500 transition-colors">
-                Input Layer
-            </div>
+
 
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
