@@ -104,3 +104,28 @@ async def lock_voice(
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+from fastapi.responses import FileResponse
+
+@router.get("/download/{voice_id}")
+async def download_voice(voice_id: str, db: AsyncSession = Depends(get_db)):
+    """
+    Download the audio file for a cloned/locked voice.
+    """
+    result = await db.execute(select(VoiceProfile).where(VoiceProfile.id == voice_id))
+    voice = result.scalars().first()
+    
+    if not voice:
+        raise HTTPException(status_code=404, detail="Voice not found")
+    
+    if not voice.file_path or not os.path.exists(voice.file_path):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    
+    # Return file with proper filename for download
+    filename = f"{voice.name.replace(' ', '_')}.wav"
+    return FileResponse(
+        voice.file_path,
+        media_type="audio/wav",
+        filename=filename,
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

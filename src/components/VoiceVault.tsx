@@ -135,7 +135,19 @@ export const VoiceVault = () => {
                             </div>
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button onClick={(e) => { e.stopPropagation(); removeVoice(voice.id); }} className="p-1.5 hover:bg-red-500/10 hover:text-red-400 text-slate-500 rounded-lg transition-colors"><Trash2 size={16} /></button>
-                                <button className="p-1.5 hover:bg-indigo-500/10 hover:text-indigo-400 text-slate-500 rounded-lg transition-colors"><Download size={16} /></button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // Trigger download via hidden anchor
+                                        const link = document.createElement('a');
+                                        link.href = `https://${window.location.hostname}:8000/api/v1/clone/download/${voice.id}`;
+                                        link.download = `${voice.name}.wav`;
+                                        link.click();
+                                    }}
+                                    className="p-1.5 hover:bg-indigo-500/10 hover:text-indigo-400 text-slate-500 rounded-lg transition-colors"
+                                >
+                                    <Download size={16} />
+                                </button>
                             </div>
                         </div>
                     ))}
