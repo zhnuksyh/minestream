@@ -60,3 +60,47 @@ async def list_voices(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(VoiceProfile))
     voices = result.scalars().all()
     return {"voices": [v.to_dict() for v in voices]}
+
+@router.post("/lock")
+async def lock_voice(
+    audio: UploadFile = File(...),
+    name: str = Form(...),
+    prompt: str = Form(None),  # Original prompt used to generate this voice
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Lock a preview voice by saving the audio as a reference.
+    Future generations with this voice will use clone mode for consistency.
+    """
+    try:
+        # 1. Generate ID and Paths
+        voice_id = uuid.uuid4().hex[:8]
+        filename = f"locked_{voice_id}.wav"
+        file_path = os.path.join(settings.UPLOAD_DIR, filename)
+        
+        # 2. Save Audio File (auto-converts to WAV)
+        contents = await audio.read()
+        AudioService.save_upload(contents, file_path)
+        
+        # 3. Create Database Entry with type="locked"
+        new_voice = VoiceProfile(
+            id=voice_id,
+            name=name,
+            tag="Locked",
+            type="locked",
+            prompt=prompt,
+            file_path=file_path
+        )
+        
+        db.add(new_voice)
+        await db.commit()
+        await db.refresh(new_voice)
+        
+        return {
+            "status": "locked",
+            "voice": new_voice.to_dict()
+        }
+        
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

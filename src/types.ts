@@ -1,8 +1,10 @@
 export interface VoiceProfile {
     id: string;
     name: string;
-    tag: 'Natural' | 'Gaming' | 'Narrator' | 'Fantasy' | 'Sci-Fi';
-    previewUrl?: string; // Optional URL for previewing the voice
+    tag: string;
+    type?: 'cloned' | 'locked' | 'preset';
+    prompt?: string;
+    previewUrl?: string;
 }
 
 export type AppMode = 'GENERATE' | 'CLONE';

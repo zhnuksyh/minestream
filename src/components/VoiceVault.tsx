@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Save, Trash2, Download, Upload, Loader2 } from 'lucide-react';
+import { Save, Trash2, Download, Upload, Loader2, Lock } from 'lucide-react';
 import { Card } from './ui/Card';
 import { useStore } from '../store/useStore';
 import { api } from '../services/api';
@@ -83,7 +83,8 @@ const UploadPanel = ({ onUploadComplete }: UploadPanelProps) => {
     );
 };
 export const VoiceVault = () => {
-    const { clonedVoices, removeVoice, voiceMode, setVoiceMode, selectedVoiceId, setSelectedVoiceId, customVoicePrompt, setCustomVoicePrompt } = useStore();
+    const { clonedVoices, removeVoice, voiceMode, setVoiceMode, selectedVoiceId, setSelectedVoiceId, customVoicePrompt, setCustomVoicePrompt, generatedAudio, fetchVoices, showToast } = useStore();
+    const [isSaving, setIsSaving] = useState(false);
 
     return (
         <Card>
@@ -125,7 +126,10 @@ export const VoiceVault = () => {
                                     {voice.name.substring(0, 2).toUpperCase()}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-slate-200">{voice.name}</p>
+                                    <p className="text-sm font-bold text-slate-200 flex items-center gap-1.5">
+                                        {voice.name}
+                                        {voice.type === 'locked' && <Lock size={12} className="text-amber-400" />}
+                                    </p>
                                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{voice.tag}</p>
                                 </div>
                             </div>
@@ -144,7 +148,7 @@ export const VoiceVault = () => {
             )}
 
             {voiceMode === 'prompt' && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-3">
                     <label className="text-[10px] uppercase font-bold text-slate-500 mb-2 block">Voice Description</label>
                     <textarea
                         value={customVoicePrompt}
@@ -152,6 +156,35 @@ export const VoiceVault = () => {
                         placeholder="Describe the voice: 'A rusty, old pirate captain with a deep growl...'"
                         className="w-full h-32 bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all font-mono resize-none"
                     />
+                    {/* Save Voice Button - appears after generation in prompt mode */}
+                    {generatedAudio && customVoicePrompt && (
+                        <button
+                            onClick={async () => {
+                                setIsSaving(true);
+                                try {
+                                    // Fetch the audio blob from the generated URL
+                                    const response = await fetch(generatedAudio.url);
+                                    const blob = await response.blob();
+
+                                    // Lock the voice
+                                    const voiceName = prompt('Name this voice:') || 'Locked Voice';
+                                    await api.lockVoice(blob, voiceName, customVoicePrompt);
+                                    await fetchVoices();
+                                    showToast('Voice locked and added to library!', 'success');
+                                    setVoiceMode('library');
+                                } catch (error) {
+                                    console.error(error);
+                                    showToast('Failed to lock voice.', 'error');
+                                }
+                                setIsSaving(false);
+                            }}
+                            disabled={isSaving}
+                            className="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold uppercase flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                        >
+                            {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Lock size={14} />}
+                            {isSaving ? 'Saving...' : 'Lock This Voice'}
+                        </button>
+                    )}
                 </div>
             )}
 

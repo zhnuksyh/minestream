@@ -76,5 +76,32 @@ export const api = {
             console.error("Fetch Voices Error:", error);
             return [];
         }
+    },
+
+    lockVoice: async (audioBlob: Blob, name: string, prompt?: string): Promise<{ success: boolean; id: string }> => {
+        try {
+            const formData = new FormData();
+            formData.append("audio", audioBlob);
+            formData.append("name", name);
+            if (prompt) formData.append("prompt", prompt);
+
+            const response = await fetch(`${API_BASE_URL}/clone/lock`, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to lock voice");
+            }
+
+            const data = await response.json();
+            return {
+                success: true,
+                id: data.voice.id
+            };
+        } catch (error) {
+            console.error("Lock Voice API Error:", error);
+            throw error;
+        }
     }
 };

@@ -9,8 +9,9 @@ class VoiceProfile(Base):
     id = Column(String, primary_key=True, default=lambda: uuid.uuid4().hex[:8])
     name = Column(String, nullable=False)
     tag = Column(String, nullable=False)  # e.g., "Gaming", "Narrator"
+    type = Column(String, default="cloned")  # "cloned" | "locked" | "preset"
     prompt = Column(String, nullable=True) # Text description for VoiceDesign
-    file_path = Column(String, nullable=True) # Path to reference audio (optional now)
+    file_path = Column(String, nullable=True) # Path to reference audio
     created_at = Column(Float, default=time.time)
     
     def to_dict(self):
@@ -18,6 +19,7 @@ class VoiceProfile(Base):
             "id": self.id,
             "name": self.name,
             "tag": self.tag,
+            "type": self.type,
             "prompt": self.prompt,
             "created_at": self.created_at
         }
