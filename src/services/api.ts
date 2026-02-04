@@ -103,5 +103,24 @@ export const api = {
             console.error("Lock Voice API Error:", error);
             throw error;
         }
+    },
+
+    updateVoice: async (id: string, name: string): Promise<{ success: boolean; voice: any }> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/clone/update/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name }),
+            });
+
+            if (!response.ok) throw new Error("Failed to update voice");
+            const data = await response.json();
+            return { success: true, voice: data.voice };
+        } catch (error) {
+            console.error("Update Voice API Error:", error);
+            throw error;
+        }
     }
 };

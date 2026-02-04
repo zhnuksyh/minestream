@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Save, Trash2, Download, Upload, Loader2, Lock } from 'lucide-react';
+import { Trash2, Download, Upload, Loader2, Lock, Edit2, Check, X } from 'lucide-react';
 import { Card } from './ui/Card';
 import { useStore } from '../store/useStore';
 import { api } from '../services/api';
@@ -85,11 +85,13 @@ const UploadPanel = ({ onUploadComplete }: UploadPanelProps) => {
 export const VoiceVault = () => {
     const { clonedVoices, removeVoice, voiceMode, setVoiceMode, selectedVoiceId, setSelectedVoiceId, customVoicePrompt, setCustomVoicePrompt, generatedAudio, fetchVoices, showToast } = useStore();
     const [isSaving, setIsSaving] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editName, setEditName] = useState('');
 
     return (
         <Card>
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Save className="text-indigo-400" size={20} /> Vault
+                Vault
             </h2>
 
             {/* Voice Source Selection */}
@@ -126,10 +128,47 @@ export const VoiceVault = () => {
                                     {voice.name.substring(0, 2).toUpperCase()}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-slate-200 flex items-center gap-1.5">
-                                        {voice.name}
-                                        {voice.type === 'locked' && <Lock size={12} className="text-amber-400" />}
-                                    </p>
+                                    {editingId === voice.id ? (
+                                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                            <input
+                                                type="text"
+                                                value={editName}
+                                                onChange={(e) => setEditName(e.target.value)}
+                                                className="bg-slate-900 border border-indigo-500 rounded px-2 py-0.5 text-sm w-32 focus:outline-none"
+                                                autoFocus
+                                            />
+                                            <button onClick={async (e) => {
+                                                e.stopPropagation();
+                                                try {
+                                                    await api.updateVoice(voice.id, editName);
+                                                    await fetchVoices();
+                                                    setEditingId(null);
+                                                    showToast("Voice renamed", "success");
+                                                } catch (err) {
+                                                    showToast("Failed to rename", "error");
+                                                }
+                                            }} className="text-green-400 hover:bg-green-400/10 p-1 rounded"><Check size={14} /></button>
+                                            <button onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingId(null);
+                                            }} className="text-red-400 hover:bg-red-400/10 p-1 rounded"><X size={14} /></button>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm font-bold text-slate-200 flex items-center gap-1.5 group">
+                                            {voice.name}
+                                            {voice.type === 'locked' && <Lock size={12} className="text-amber-400" />}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingId(voice.id);
+                                                    setEditName(voice.name);
+                                                }}
+                                                className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-indigo-400 transition-opacity"
+                                            >
+                                                <Edit2 size={12} />
+                                            </button>
+                                        </p>
+                                    )}
                                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{voice.tag}</p>
                                 </div>
                             </div>

@@ -129,3 +129,25 @@ async def download_voice(voice_id: str, db: AsyncSession = Depends(get_db)):
         filename=filename,
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+from pydantic import BaseModel
+
+class UpdateVoiceRequest(BaseModel):
+    name: str
+
+@router.patch("/update/{voice_id}")
+async def update_voice(voice_id: str, request: UpdateVoiceRequest, db: AsyncSession = Depends(get_db)):
+    """
+    Update voice profile name.
+    """
+    result = await db.execute(select(VoiceProfile).where(VoiceProfile.id == voice_id))
+    voice = result.scalars().first()
+    
+    if not voice:
+        raise HTTPException(status_code=404, detail="Voice not found")
+    
+    voice.name = request.name
+    await db.commit()
+    await db.refresh(voice)
+    
+    return {"status": "updated", "voice": voice.to_dict()}

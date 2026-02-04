@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Zap, CheckCircle, Music, Mic, Play, Download, AlertCircle } from 'lucide-react';
+import { CheckCircle, Music, Mic, Play, Download, AlertCircle } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { api } from './services/api';
 import { ScriptEditor } from './components/ScriptEditor';
@@ -9,6 +9,7 @@ import { WaveformDisplay } from './components/WaveformDisplay';
 import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 import { Toast } from './components/ui/Toast';
+import { Loading } from './components/ui/Loading';
 
 function App() {
   const { mode, setMode, script, setScript, generatedAudio, setGeneratedAudio, isProcessing, setIsProcessing, fetchVoices, selectedVoiceId, voiceMode, customVoicePrompt, toast, hideToast } = useStore();
@@ -40,21 +41,10 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500/30">
       <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 p-2 rounded-lg shadow-lg shadow-indigo-500/20">
-              <Zap className="text-white" size={20} fill="currentColor" />
-            </div>
-            <h1 className="text-2xl font-black tracking-tighter uppercase italic">
-              Mine<span className="text-indigo-400">Stream</span>
-            </h1>
-          </div>
-          <div className="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-            <span className="hidden sm:inline">User: Zahin</span>
-            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 shadow-lg">
-              Z
-            </div>
-          </div>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-center items-center">
+          <h1 className="text-2xl font-black tracking-tighter uppercase italic">
+            Mine<span className="text-indigo-400">Stream</span>
+          </h1>
         </div>
       </header>
 
@@ -94,11 +84,18 @@ function App() {
                 <div className="space-y-3">
                   <Button
                     onClick={handleGenerate}
-                    isLoading={isProcessing}
-                    className="w-full"
+                    disabled={isProcessing}
+                    className="w-full h-12 relative overflow-hidden"
                     variant="secondary"
                   >
-                    <Play size={18} fill="currentColor" className="mr-2" /> Preview Audio
+                    {isProcessing ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <Loading />
+                        <span className="text-xs uppercase tracking-widest font-bold">Generating...</span>
+                      </div>
+                    ) : (
+                      <span className="flex items-center"><Play size={18} fill="currentColor" className="mr-2" /> Preview Audio</span>
+                    )}
                   </Button>
                   <Button
                     className="w-full shadow-lg shadow-indigo-500/30"
@@ -155,7 +152,6 @@ function App() {
           <p>© 2026 MineStream • Neural Synthesis Terminal</p>
           <div className="mt-4 flex justify-center gap-6">
             <span className="flex items-center gap-1.5"><CheckCircle size={12} className="text-indigo-500" /> Kernel Active</span>
-            <span className="flex items-center gap-1.5"><Zap size={12} className="text-indigo-500" /> GPU High-Freq</span>
           </div>
         </div>
       </footer>

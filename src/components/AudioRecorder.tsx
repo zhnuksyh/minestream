@@ -6,12 +6,7 @@ import { useMicrophone } from '../hooks/useMicrophone';
 import { api } from '../services/api';
 import { useStore } from '../store/useStore';
 
-const HARVARD_SENTENCES = [
-    "The oak tree was planted in the center of the garden.",
-    "Large size in garments is sometimes an advantage.",
-    "He knew the skill of the young player was high.",
-    "The birch canoe slid on the smooth planks."
-];
+const PHONETIC_STRING = "The quick brown fox jumps over the lazy dog while the sun sets behind the mountains.";
 
 export const AudioRecorder = () => {
     const { isRecording, startRecording, stopRecording, getFrequencyData } = useMicrophone();
@@ -114,12 +109,12 @@ export const AudioRecorder = () => {
     return (
         <Card className="relative overflow-hidden">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold flex items-center gap-2 uppercase tracking-tighter italic">
-                    <Mic className="text-red-500" size={20} /> Voice Capture
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                    Voice Capture
                 </h2>
-                <div className="flex items-center gap-2 font-mono text-xs font-bold">
-                    <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-slate-600'}`} />
-                    <span className={isRecording ? 'text-red-400' : 'text-slate-500'}>{formatTime(recordTime)} / 0:10 SEC</span>
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-slate-700'}`} />
+                    {isRecording ? formatTime(recordTime) : '0:00'} / 0:10 sec
                 </div>
             </div>
 
@@ -127,7 +122,7 @@ export const AudioRecorder = () => {
             <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6 mb-6 text-center shadow-inner">
                 <p className="text-[10px] text-slate-500 mb-2 uppercase tracking-[0.2em] font-black">Phonetic Training String</p>
                 <p className="text-xl font-medium text-slate-100 italic">
-                    "{HARVARD_SENTENCES[Math.min(recordTime % 4, 3)]}"
+                    "{PHONETIC_STRING}"
                 </p>
             </div>
 
@@ -145,10 +140,10 @@ export const AudioRecorder = () => {
                     {!isRecording ? (
                         <Button
                             onClick={startRecording}
-                            variant="danger"
-                            className="flex-1 py-4 uppercase tracking-widest"
+                            variant="primary"
+                            className="flex-1 py-4 uppercase tracking-widest shadow-indigo-500/20"
                         >
-                            <Mic size={20} fill="currentColor" className="mr-2" /> Record Sample
+                            <Mic size={20} className="mr-2" /> Record Sample
                         </Button>
                     ) : (
                         <Button
