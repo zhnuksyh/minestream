@@ -112,7 +112,7 @@ export const AudioRecorder = () => {
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                     Voice Capture
                 </h2>
-                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                     <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-slate-700'}`} />
                     {isRecording ? formatTime(recordTime) : '0:00'} / 0:10 sec
                 </div>
@@ -120,7 +120,7 @@ export const AudioRecorder = () => {
 
             {/* Prompt Sentence */}
             <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6 mb-6 text-center shadow-inner">
-                <p className="text-[10px] text-slate-500 mb-2 uppercase tracking-[0.2em] font-black">Phonetic Training String</p>
+                <p className="text-xs text-slate-500 mb-2 uppercase tracking-[0.2em] font-black">Phonetic Training String</p>
                 <p className="text-xl font-medium text-slate-100 italic">
                     "{PHONETIC_STRING}"
                 </p>

@@ -42,7 +42,7 @@ const UploadPanel = ({ onUploadComplete }: UploadPanelProps) => {
                 className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center transition-colors cursor-pointer h-24 ${file ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-700 hover:border-indigo-500'}`}
             >
                 <Upload size={20} className={file ? 'text-indigo-400 mb-1' : 'text-slate-600 mb-1'} />
-                <span className="text-[10px] font-bold text-slate-400 uppercase text-center">
+                <span className="text-xs font-bold text-slate-400 uppercase text-center">
                     {file ? file.name : 'Click to select audio file'}
                 </span>
             </div>
@@ -100,7 +100,7 @@ export const VoiceVault = () => {
                     <button
                         key={v}
                         onClick={() => setVoiceMode(v)}
-                        className={`flex-1 py-1.5 text-[10px] font-black uppercase rounded-md transition-all ${voiceMode === v ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                        className={`flex-1 py-1.5 text-xs font-black uppercase rounded-md transition-all ${voiceMode === v ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                     >
                         {v}
                     </button>
@@ -169,7 +169,7 @@ export const VoiceVault = () => {
                                             </button>
                                         </p>
                                     )}
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{voice.tag}</p>
+                                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{voice.tag}</p>
                                 </div>
                             </div>
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -200,7 +200,7 @@ export const VoiceVault = () => {
 
             {voiceMode === 'prompt' && (
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-3">
-                    <label className="text-[10px] uppercase font-bold text-slate-500 mb-2 block">Voice Description</label>
+                    <label className="text-xs uppercase font-bold text-slate-500 mb-2 block">Voice Description</label>
                     <textarea
                         value={customVoicePrompt}
                         onChange={(e) => setCustomVoicePrompt(e.target.value)}

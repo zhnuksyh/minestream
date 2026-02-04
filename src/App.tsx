@@ -139,7 +139,7 @@ function App() {
             <div className="flex items-start gap-4 p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-xl">
               <AlertCircle className="text-indigo-500 shrink-0" size={20} />
               <div className="text-sm">
-                <p className="font-black text-indigo-400 uppercase text-[10px] tracking-widest mb-1">Optimization Protocol</p>
+                <p className="font-black text-indigo-400 uppercase text-xs tracking-widest mb-1">Optimization Protocol</p>
                 <p className="text-indigo-300/60 leading-tight">Zero-shot inference requires high signal-to-noise ratio. Ensure your mic is clear of keyboard clicks for the best clone.</p>
               </div>
             </div>
@@ -148,7 +148,7 @@ function App() {
       </main>
 
       <footer className="mt-12 border-t border-slate-800 py-8">
-        <div className="max-w-4xl mx-auto px-6 text-center text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">
+        <div className="max-w-4xl mx-auto px-6 text-center text-slate-600 text-xs font-bold uppercase tracking-[0.2em]">
           <p>© 2026 MineStream • Neural Synthesis Terminal</p>
           <div className="mt-4 flex justify-center gap-6">
             <span className="flex items-center gap-1.5"><CheckCircle size={12} className="text-indigo-500" /> Kernel Active</span>

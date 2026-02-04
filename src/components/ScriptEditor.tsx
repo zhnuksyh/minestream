@@ -22,7 +22,7 @@ export const ScriptEditor = ({ script, setScript }: ScriptEditorProps) => {
                     className="w-full h-48 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none transition-all text-sm leading-relaxed"
                 />
 
-                <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                <div className="flex justify-between items-center text-xs text-slate-500 font-bold uppercase tracking-wider">
                     <span>{/* Spacer */}</span>
                     <div className="flex gap-4">
                         <span>Wrd: {script.trim() ? script.trim().split(/\s+/).length : 0}</span>
